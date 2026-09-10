@@ -1,0 +1,16 @@
+Nora Williams
+nora.williams@example.com
+
+Summary
+NLP researcher with six years of experience training language models and evaluating retrieval systems.
+
+Skills
+Python, Machine Learning, Deep Learning, PyTorch, TensorFlow, Data Analysis, SQL
+
+Experience
+Applied Scientist, Lexicon AI
+Developed transformer models for document retrieval, question answering, and text classification using PyTorch.
+6 years of experience in natural language processing and applied machine learning.
+
+Education
+PhD in Computer Science, Eastview University

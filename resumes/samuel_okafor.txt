@@ -1,0 +1,16 @@
+Samuel Okafor
+samuel.okafor@example.com
+
+Summary
+Cloud platform engineer with nine years of experience automating secure, scalable infrastructure.
+
+Skills
+Python, AWS, Azure, GCP, Docker, Kubernetes, Terraform, SQL
+
+Experience
+Principal Platform Engineer, Orbit Cloud
+Created Kubernetes platform tooling, CI/CD automation, and multi-cloud observability for engineering teams.
+9 years of experience in cloud infrastructure and platform engineering.
+
+Education
+Bachelor of Science in Computer Engineering, Ridge University

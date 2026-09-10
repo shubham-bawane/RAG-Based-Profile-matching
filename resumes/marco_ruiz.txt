@@ -1,0 +1,16 @@
+Marco Ruiz
+marco.ruiz@example.com
+
+Summary
+Backend engineer with seven years of experience designing reliable APIs and distributed services.
+
+Skills
+Python, Java, SQL, AWS, Docker, Kubernetes, Node.js
+
+Experience
+Senior Backend Engineer, Atlas Payments
+Designed Python and Java services, REST APIs, and event-driven payment processing deployed to AWS.
+7 years of experience in backend software engineering.
+
+Education
+Bachelor of Science in Software Engineering, Lakeside College

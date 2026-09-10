@@ -1,0 +1,16 @@
+Emily Chen
+emily.chen@example.com
+
+Summary
+Frontend engineer with four years of experience creating accessible web applications and design systems.
+
+Skills
+JavaScript, TypeScript, React, Node.js, AWS
+
+Experience
+Frontend Engineer, Brightwork
+Built React and TypeScript customer workflows and maintained a component library used across web products.
+4 years of experience in frontend engineering.
+
+Education
+Bachelor of Science in Information Systems, Greenfield University

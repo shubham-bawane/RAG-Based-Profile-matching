@@ -1,0 +1,16 @@
+Alex Morgan
+alex.morgan@example.com
+
+Summary
+Machine learning engineer with eight years of experience building search, ranking, and recommendation products.
+
+Skills
+Python, SQL, Machine Learning, Deep Learning, AWS, Docker, Kubernetes, PyTorch, Spark
+
+Experience
+Staff Machine Learning Engineer, Northstar Systems
+Led a team that deployed PyTorch ranking models, feature pipelines, and model monitoring on AWS Kubernetes.
+8 years of experience in machine learning engineering.
+
+Education
+Master of Science in Computer Science, Harbor University

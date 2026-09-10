@@ -1,0 +1,16 @@
+David Kim
+david.kim@example.com
+
+Summary
+Business intelligence analyst with three years of experience creating metrics, dashboards, and reporting pipelines.
+
+Skills
+SQL, Python, Data Analysis, AWS
+
+Experience
+BI Analyst, Clearpath Health
+Built SQL data models and Python reporting automation for clinical operations leaders.
+3 years of experience in business intelligence and analytics.
+
+Education
+Bachelor of Science in Economics, Central College

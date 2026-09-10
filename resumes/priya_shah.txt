@@ -1,0 +1,16 @@
+Priya Shah
+priya.shah@example.com
+
+Summary
+Data scientist with five years of experience turning product data into forecasting and experimentation insights.
+
+Skills
+Python, SQL, Machine Learning, Data Analysis, AWS, Spark, TensorFlow
+
+Experience
+Data Scientist, Meridian Retail
+Built demand forecasts and customer-segmentation models using Python, SQL, Spark, and TensorFlow.
+5 years of experience in analytics and data science.
+
+Education
+Master of Science in Statistics, City University

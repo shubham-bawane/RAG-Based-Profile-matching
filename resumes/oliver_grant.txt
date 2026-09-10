@@ -1,0 +1,16 @@
+Oliver Grant
+oliver.grant@example.com
+
+Summary
+Junior software engineer with two years of experience contributing to web APIs and internal data tools.
+
+Skills
+Python, JavaScript, React, SQL, Docker
+
+Experience
+Software Engineer, Willow Labs
+Implemented Python API endpoints, React interfaces, and SQL-backed reporting features.
+2 years of experience in software engineering.
+
+Education
+Bachelor of Science in Computer Science, Valley College

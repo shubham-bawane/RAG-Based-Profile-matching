@@ -1,0 +1,16 @@
+Lina Patel
+lina.patel@example.com
+
+Summary
+Machine learning engineer with five years of experience delivering computer vision services for manufacturing.
+
+Skills
+Python, Machine Learning, Deep Learning, AWS, Docker, TensorFlow, Kubernetes
+
+Experience
+Machine Learning Engineer, Forge Vision
+Built TensorFlow image-inspection models and deployed inference APIs to AWS with Docker and Kubernetes.
+5 years of experience in machine learning and production software delivery.
+
+Education
+Master of Science in Electrical Engineering, Westbridge University
