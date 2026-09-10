@@ -1,0 +1,5 @@
+.chroma/
+.chroma-*/
+__pycache__/
+*.py[cod]
+.env
