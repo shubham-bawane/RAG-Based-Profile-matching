@@ -6,10 +6,9 @@ import argparse
 import json
 import re
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 
-from resume_rag import Embedder, HashingEmbedder, HuggingFaceEmbedder, KNOWN_SKILLS, create_collection
+from resume_rag import Embedder, HashingEmbedder, HuggingFaceEmbedder, KNOWN_SKILLS, get_qdrant_client
 
 
 def extract_skills(text: str) -> list[str]:
@@ -25,27 +24,32 @@ def extract_must_haves(job_description: str) -> tuple[list[str], int]:
     return list(dict.fromkeys(critical_skills)), max(years, default=0)
 
 
-def match_job(job_description: str, embedder: Embedder, database_path: Path = Path(".chroma-semantic"), collection_name: str = "resumes", top_k: int = 10) -> dict[str, Any]:
+def match_job(job_description: str, embedder: Embedder, collection_name: str = "resumes", top_k: int = 10) -> dict[str, Any]:
     """Combine semantic similarity and explicit skill overlap into a 0-100 ranking."""
-    collection = create_collection(database_path, collection_name)
-    indexed_chunks = collection.count()
-    if indexed_chunks == 0:
-        return {"job_description": job_description, "top_matches": []}
-    results = collection.query(query_embeddings=embedder.embed([job_description]), n_results=min(top_k * 4, indexed_chunks), include=["documents", "metadatas", "distances"])
+    query_vector = embedder.embed([job_description])[0]
+    client = get_qdrant_client(collection_name, len(query_vector))
+    results = client.query_points(
+        collection_name=collection_name,
+        query=query_vector,
+        limit=top_k * 4,
+        with_payload=True,
+    )
     job_skills = extract_skills(job_description)
     must_have_skills, minimum_years = extract_must_haves(job_description)
     candidates: dict[str, dict[str, Any]] = defaultdict(lambda: {"excerpts": [], "sections": set(), "best_similarity": 0.0})
 
-    for document, metadata, distance in zip(results["documents"][0], results["metadatas"][0], results["distances"][0]):
+    for point in results.points:
+        metadata = point.payload
+        document = metadata["document"]
         skills = [skill.strip() for skill in metadata["skills"].split(",") if skill.strip()]
         if any(skill not in skills for skill in must_have_skills) or metadata["experience_years"] < minimum_years:
             continue
         key = metadata["resume_path"]
         candidate = candidates[key]
-        candidate.update(metadata)
+        candidate.update({key: value for key, value in metadata.items() if key != "document"})
         candidate["excerpts"].append(document[:300])
         candidate["sections"].add(metadata["section"])
-        candidate["best_similarity"] = max(candidate["best_similarity"], 1 - float(distance))
+        candidate["best_similarity"] = max(candidate["best_similarity"], float(point.score))
 
     matches = []
     for candidate in candidates.values():
@@ -68,12 +72,11 @@ def match_job(job_description: str, embedder: Embedder, database_path: Path = Pa
 def main() -> None:
     parser = argparse.ArgumentParser(description="Find the best resume matches for a job description.")
     parser.add_argument("job_description", help="Text of the job description")
-    parser.add_argument("--database", type=Path, default=Path(".chroma-semantic"))
     parser.add_argument("--collection", default="resumes")
     parser.add_argument("--embedder", choices=("huggingface", "hashing"), default="huggingface")
     args = parser.parse_args()
     embedder: Embedder = HashingEmbedder() if args.embedder == "hashing" else HuggingFaceEmbedder()
-    print(json.dumps(match_job(args.job_description, embedder, args.database, args.collection), indent=2))
+    print(json.dumps(match_job(args.job_description, embedder, args.collection), indent=2))
 
 
 if __name__ == "__main__":

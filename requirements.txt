@@ -1,5 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.14.0+cpu
-chromadb>=1.0.0
+qdrant-client>=1.10.0,<2.0.0
+python-dotenv>=1.0.0
 sentence-transformers>=3.0.0
 pypdf>=5.0.0

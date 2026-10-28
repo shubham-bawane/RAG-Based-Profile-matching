@@ -1,10 +1,12 @@
-"""Ingest resume files into ChromaDB for retrieval-augmented job matching."""
+"""Ingest resume files into Qdrant for retrieval-augmented job matching."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import re
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -58,7 +60,7 @@ class ResumeMetadata:
     experience_years: int
     education: str
 
-    def as_chroma_metadata(self, resume_path: Path, section: str) -> dict[str, str | int]:
+    def as_qdrant_payload(self, resume_path: Path, section: str) -> dict[str, str | int]:
         return {
             "candidate_name": self.name,
             "resume_path": str(resume_path),
@@ -114,40 +116,60 @@ def chunk_resume(text: str, chunk_size: int = 900) -> list[tuple[str, str]]:
     return chunks
 
 
-def create_collection(database_path: Path, collection_name: str):
-    import chromadb
+def get_qdrant_client(collection_name: str, vector_size: int):
+    from dotenv import load_dotenv
+    from qdrant_client import QdrantClient, models
 
-    client = chromadb.PersistentClient(path=str(database_path))
-    return client.get_or_create_collection(collection_name, metadata={"hnsw:space": "cosine"})
+    load_dotenv()
+    url = os.environ.get("QDRANT_URL")
+    api_key = os.environ.get("QDRANT_API_KEY")
+    if not url or not api_key:
+        raise RuntimeError("Set QDRANT_URL and QDRANT_API_KEY before using Qdrant Cloud.")
+
+    client = QdrantClient(url=url, api_key=api_key)
+    if not client.collection_exists(collection_name):
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=models.VectorParams(size=vector_size, distance=models.Distance.COSINE),
+        )
+    return client
 
 
-def ingest_resumes(input_directory: Path, database_path: Path, collection_name: str, embedder: Embedder) -> int:
-    collection = create_collection(database_path, collection_name)
+def ingest_resumes(input_directory: Path, collection_name: str, embedder: Embedder) -> int:
     files = [path for path in input_directory.rglob("*") if path.suffix.lower() in {".txt", ".md", ".pdf"}]
     documents: list[str] = []
     ids: list[str] = []
-    metadata: list[dict[str, str | int]] = []
+    payloads: list[dict[str, str | int]] = []
     for path in files:
         text = read_resume(path)
         candidate = extract_metadata(text, path.stem.replace("_", " ").title())
         for index, (section, chunk) in enumerate(chunk_resume(text)):
             documents.append(chunk)
-            ids.append(hashlib.sha256(f"{path.resolve()}:{index}".encode()).hexdigest())
-            metadata.append(candidate.as_chroma_metadata(path, section))
+            ids.append(str(uuid.uuid5(uuid.NAMESPACE_URL, f"{path.resolve()}:{index}")))
+            payloads.append(candidate.as_qdrant_payload(path, section))
     if documents:
-        collection.upsert(ids=ids, documents=documents, metadatas=metadata, embeddings=embedder.embed(documents))
+        from qdrant_client import models
+
+        vectors = embedder.embed(documents)
+        client = get_qdrant_client(collection_name, len(vectors[0]))
+        client.upsert(
+            collection_name=collection_name,
+            points=[
+                models.PointStruct(id=point_id, vector=vector, payload={"document": document, **payload})
+                for point_id, vector, document, payload in zip(ids, vectors, documents, payloads)
+            ],
+        )
     return len(documents)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Ingest resumes into ChromaDB.")
+    parser = argparse.ArgumentParser(description="Ingest resume files into Qdrant.")
     parser.add_argument("--input", type=Path, default=Path("resumes"))
-    parser.add_argument("--database", type=Path, default=Path(".chroma-semantic"))
     parser.add_argument("--collection", default="resumes")
     parser.add_argument("--embedder", choices=("huggingface", "hashing"), default="huggingface")
     args = parser.parse_args()
     embedder: Embedder = HashingEmbedder() if args.embedder == "hashing" else HuggingFaceEmbedder()
-    print(f"Indexed {ingest_resumes(args.input, args.database, args.collection, embedder)} resume chunks.")
+    print(f"Indexed {ingest_resumes(args.input, args.collection, embedder)} resume chunks.")
 
 
 if __name__ == "__main__":
